@@ -15,7 +15,7 @@
 #
 
 cmake_minimum_required(VERSION 2.8.12)
-project(OpenFAST Fortran C)
+project(OpenFAST CXX C Fortran)
 
 include(${CMAKE_SOURCE_DIR}/cmake/FastCmakeUtils.cmake)
 include(${CMAKE_SOURCE_DIR}/cmake/FastFortranOptions.cmake)
@@ -33,6 +33,7 @@ option(DOUBLE_PRECISION "Treat REAL as double precision" on)
 option(USE_DLL_INTERFACE "Enable runtime loading of dynamic libraries" on)
 option(FPE_TRAP_ENABLED "Enable FPE trap in compiler options" off)
 option(ORCA_DLL_LOAD "Enable OrcaFlex Library Load" off)
+option(BUILD_FAST_CPP_API "Enable building FAST - C++ API" off)
 
 # Setup Fortran Compiler options based on architecture/compiler
 set_fast_fortran()
@@ -71,6 +72,7 @@ set(FAST_MODULES_LOCAL
   orcaflex-interface
   extptfm
   openfoam
+  supercontroller
   fast-library
   )
 

@@ -14,10 +14,21 @@
 # limitations under the License.
 #
 
-add_executable(openfast
-  src/FAST_Prog.f90)
-target_link_libraries(openfast openfast_postlib foamfastlib)
-set_property(TARGET openfast PROPERTY LINKER_LANGUAGE Fortran)
+generate_f90_types(src/SuperController_Registry.txt SuperController_Types.f90 -ccode)
 
-install(TARGETS openfast
-  RUNTIME DESTINATION bin)
+add_library(sctypeslib
+  SuperController_Types.f90)
+target_link_libraries(sctypeslib nwtclibs)
+
+add_library(scfastlib
+  src/SuperController.f90)
+target_link_libraries(scfastlib sctypeslib openfast_prelib nwtclibs)
+
+install(TARGETS sctypeslib scfastlib
+  RUNTIME DESTINATION bin
+  LIBRARY DESTINATION lib
+  ARCHIVE DESTINATION lib)
+
+install(FILES
+  ${CMAKE_CURRENT_BINARY_DIR}/SuperController_Types.h
+  DESTINATION include)

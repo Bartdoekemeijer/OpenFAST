@@ -1,6 +1,4 @@
 #
-# Copyright 2016 National Renewable Energy Laboratory
-#
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
@@ -14,10 +12,16 @@
 # limitations under the License.
 #
 
-add_executable(openfast
-  src/FAST_Prog.f90)
-target_link_libraries(openfast openfast_postlib foamfastlib)
-set_property(TARGET openfast PROPERTY LINKER_LANGUAGE Fortran)
+find_path(YAML_INCLUDES
+  yaml-cpp/yaml.h
+  HINTS ${YAML_ROOT} ${CMAKE_INSTALL_PREFIX}
+  PATH_SUFFIXES include)
 
-install(TARGETS openfast
-  RUNTIME DESTINATION bin)
+find_library(YAML_LIBRARIES
+  NAMES libyaml-cpp.a yaml-cpp
+  HINTS ${YAML_ROOT} ${CMAKE_INSTALL_PREFIX}
+  PATH_SUFFIXES lib)
+
+include(FindPackageHandleStandardArgs)
+find_package_handle_standard_args(YAMLCPP DEFAULT_MSG YAML_INCLUDES YAML_LIBRARIES)
+mark_as_advanced(YAML_INCLUDES YAML_LIBRARIES)
