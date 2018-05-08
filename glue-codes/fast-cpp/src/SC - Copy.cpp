@@ -158,33 +158,24 @@ void SuperController::init(scInitOutData & scio, int inNTurbinesProc, std::map<i
 }
 
 void SuperController::calcOutputs_n(double t) {
-	int fastMPIRank; // Processor number
-    if (MPI_COMM_NULL != fastMPIComm) {
-        MPI_Comm_rank(fastMPIComm, &fastMPIRank);
-    }
-    if ( (nTurbinesProc > 0) && (fastMPIRank == 0) ) { // Only evaluate SC on processor0
+    
+    if (nTurbinesProc > 0) {
         sc_calcOutputs(&t, &nTurbinesGlob, &nParamGlobal, paramGlobal.data(), &nParamTurbine, paramTurbine.data(), &nInpGlobal, to_SCglob_n.data(), &nCtrl2SC, to_SC_n.data(), &nStatesGlobal, globStates.data(), &nStatesTurbine, turbineStates.data(), &nSC2CtrlGlob, from_SCglob_n.data(), &nSC2Ctrl, from_SC_n.data(), &ErrStat, ErrMsg);
     }
 
 }
 
 void SuperController::calcOutputs_np1(double t) {
-	int fastMPIRank; // Processor number
-    if (MPI_COMM_NULL != fastMPIComm) {
-        MPI_Comm_rank(fastMPIComm, &fastMPIRank);
-    }
-    if ( (nTurbinesProc > 0) && (fastMPIRank == 0) ) { // Only evaluate SC on processor0
+    
+    if (nTurbinesProc > 0) {
         sc_calcOutputs(&t, &nTurbinesGlob, &nParamGlobal, paramGlobal.data(), &nParamTurbine, paramTurbine.data(), &nInpGlobal, to_SCglob_n.data(), &nCtrl2SC, to_SC_n.data(), &nStatesGlobal, globStates_np1.data(), &nStatesTurbine, turbineStates_np1.data(), &nSC2CtrlGlob, from_SCglob_np1.data(), &nSC2Ctrl, from_SC_np1.data(), &ErrStat, ErrMsg);
     }
 
 }
 
 void SuperController::updateStates(double t) {
-	int fastMPIRank; // Processor number
-    if (MPI_COMM_NULL != fastMPIComm) {
-        MPI_Comm_rank(fastMPIComm, &fastMPIRank);
-    }
-    if ( (nTurbinesProc > 0) && (fastMPIRank == 0) ) { // Only evaluate SC on processor0
+
+    if (nTurbinesProc > 0) {
         sc_updateStates(&t, &nTurbinesGlob, &nParamGlobal, paramGlobal.data(), &nParamTurbine, paramTurbine.data(), &nInpGlobal, to_SCglob_n.data(), &nCtrl2SC, to_SC_n.data(), &nStatesGlobal, globStates.data(), globStates_np1.data(), &nStatesTurbine, turbineStates.data(), turbineStates_np1.data(), &ErrStat, ErrMsg);
     }
 
@@ -399,10 +390,6 @@ void SuperController::fastSCInputOutput() {
     
     if (MPI_COMM_NULL != fastMPIComm) {
         MPI_Allreduce(MPI_IN_PLACE, to_SC_np1.data(), nCtrl2SC*nTurbinesGlob, MPI_FLOAT, MPI_SUM, fastMPIComm) ;
-		
-		// Scatter from core 0 (superController core) back to all cores
-		MPI_Scatter(from_SC_np1.data(), nSC2Ctrl*nTurbinesProc, MPI_FLOAT, from_SC_np1.data(), nSC2Ctrl*nTurbinesProc, MPI_FLOAT,0,fastMPIComm) ;
-		MPI_Scatter(from_SCglob_np1.data(), nSC2CtrlGlob*nTurbinesProc, MPI_FLOAT, from_SCglob_np1.data(), nSC2CtrlGlob*nTurbinesProc, MPI_FLOAT,0,fastMPIComm) ;
     }
     
     for(int iTurb=0; iTurb < nTurbinesProc; iTurb++) {

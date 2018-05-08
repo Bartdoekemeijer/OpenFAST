@@ -12,6 +12,7 @@
 #include <map>
 #include "hdf5.h"
 #include "dlfcn.h"
+#include "mpi.h"
 
 class scInitOutData {
 
